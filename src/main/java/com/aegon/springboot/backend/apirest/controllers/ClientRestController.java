@@ -34,9 +34,25 @@ public class ClientRestController {
   }
 
   @PostMapping("/clients")
-  @RestponseStatus(HttpStatus.CREATED)
+  @ResponseStatus(HttpStatus.CREATED)
   public Client create(@RequestBody Client client) {
     return clientService.save(client);
+  }
+
+  @PutMapping("/clients/{id}")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Client update(@RequestBody Client client, @PathVariable Long id) {
+    Client currentClient = clientService.findById(id);
+    currentClient.setName(client.getName());
+    currentClient.setLastname(client.getLastname());
+    currentClient.setEmail(client.getEmail());
+    return clientService.save(currentClient);
+  }
+
+  @DeleteMapping("/clients/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable Long id) {
+    clientService.delete(id);
   }
 
 }
