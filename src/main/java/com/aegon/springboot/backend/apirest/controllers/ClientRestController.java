@@ -28,4 +28,15 @@ public class ClientRestController {
 
   }
 
+  @GetMapping("/clients/{id}")
+  public Client show(@PathVariable Long id) {
+    return clientService.findById(id);
+  }
+
+  @PostMapping("/clients")
+  @RestponseStatus(HttpStatus.CREATED)
+  public Client create(@RequestBody Client client) {
+    return clientService.save(client);
+  }
+
 }

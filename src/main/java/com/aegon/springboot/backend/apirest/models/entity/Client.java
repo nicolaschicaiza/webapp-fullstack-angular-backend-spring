@@ -31,6 +31,11 @@ public class Client implements Serializable {
   @Temporal(TemporalType.TIMESTAMP)
   private Date createAt;
 
+  @PrePersist
+  public void prePresist() {
+    createAt = new Date();
+  }
+
   public long getId() {
     return id;
   }
