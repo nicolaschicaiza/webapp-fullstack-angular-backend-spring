@@ -26,7 +26,7 @@ public class ClientServiceImpl implements IClientService {
 
   @Override
   @Transactional(readOnly = true)
-  publci Client findById(Long id) {
+  public Client findById(Long id) {
     return clientDao.findById(id).orElse(null);
   }
 
@@ -41,6 +41,5 @@ public class ClientServiceImpl implements IClientService {
   public void delete(Long id) {
     clientDao.deleteById(id);
   }
-
 
 }
