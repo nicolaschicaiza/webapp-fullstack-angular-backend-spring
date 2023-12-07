@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aegon.springboot.backend.apirest.models.entity.Client;
@@ -57,7 +56,6 @@ public class ClientRestController {
   }
 
   @PostMapping("/clients")
-  @ResponseStatus(code = HttpStatus.CREATED)
   public ResponseEntity<?> create(@RequestBody Client client) {
     Client newClient = null;
     Map<String, Object> response = new HashMap<>();
@@ -74,7 +72,6 @@ public class ClientRestController {
   }
 
   @PutMapping("/clients/{id}")
-  @ResponseStatus(code = HttpStatus.CREATED)
   public ResponseEntity<?> update(@RequestBody Client client, @PathVariable Long id) {
     Client currentClient = clientService.findById(id);
     Client updatedClient = null;
@@ -101,9 +98,17 @@ public class ClientRestController {
   }
 
   @DeleteMapping("/clients/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable Long id) {
-    clientService.delete(id);
+  public ResponseEntity<?> delete(@PathVariable Long id) {
+    Map<String, Object> response = new HashMap<>();
+    try {
+      clientService.delete(id);
+    } catch (DataAccessException e) {
+      response.put("mensaje", "Error al eliminar el cliente de la base de datos");
+      response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+      return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    response.put("mensaje", "El cliente ha sido eliminado con éxito!");
+    return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
   }
 
 }
