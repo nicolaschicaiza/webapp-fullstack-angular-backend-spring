@@ -1,13 +1,16 @@
 package com.aegon.springboot.backend.apirest.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aegon.springboot.backend.apirest.models.entity.Client;
 import com.aegon.springboot.backend.apirest.models.services.IClientService;
+
+import jakarta.validation.Valid;
 
 /**
  * ClientRestController
@@ -56,9 +61,17 @@ public class ClientRestController {
   }
 
   @PostMapping("/clients")
-  public ResponseEntity<?> create(@RequestBody Client client) {
+  public ResponseEntity<?> create(@Valid @RequestBody Client client, BindingResult result) {
     Client newClient = null;
     Map<String, Object> response = new HashMap<>();
+    if (result.hasErrors()) {
+      List<String> errors = result.getFieldErrors()
+          .stream()
+          .map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
+          .collect(Collectors.toList());
+      response.put("error", errors);
+      return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+    }
     try {
       newClient = clientService.save(client);
     } catch (DataAccessException e) {
@@ -72,10 +85,17 @@ public class ClientRestController {
   }
 
   @PutMapping("/clients/{id}")
-  public ResponseEntity<?> update(@RequestBody Client client, @PathVariable Long id) {
+  public ResponseEntity<?> update(@Valid @RequestBody Client client, BindingResult result, @PathVariable Long id) {
     Client currentClient = clientService.findById(id);
     Client updatedClient = null;
     Map<String, Object> response = new HashMap<>();
+    if (result.hasErrors()) {
+      List<String> errors = new ArrayList<>();
+      result.getFieldErrors().forEach(err -> {
+        errors.add("El campo '" + err.getField() + "' " + err.getDefaultMessage());
+      });
+      return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+    }
     if (currentClient == null) {
       response.put("mensaje",
           "Error: no se pudo editar, el cliente ID: ".concat(id.toString().concat(" no existe en la base de datos!")));
