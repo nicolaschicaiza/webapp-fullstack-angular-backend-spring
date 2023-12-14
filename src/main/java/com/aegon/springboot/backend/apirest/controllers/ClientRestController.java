@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -42,6 +45,12 @@ public class ClientRestController {
     return clientService.findAll();
   }
 
+  @GetMapping("/clients/page/{page}")
+  public Page<Client> index(@PathVariable Integer page) {
+    Pageable pageable = PageRequest.of(page, 4);
+    return clientService.findAll(pageable);
+  }
+
   @GetMapping("/clients/{id}")
   public ResponseEntity<?> show(@PathVariable Long id) {
     Client client = null;
@@ -69,7 +78,7 @@ public class ClientRestController {
           .stream()
           .map(err -> "El campo " + err.getDefaultMessage())
           .collect(Collectors.toList());
-      response.put("error", errors);
+      response.put("errors", errors);
       return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
     }
     try {
@@ -94,6 +103,7 @@ public class ClientRestController {
       result.getFieldErrors().forEach(err -> {
         errors.add("El campo " + err.getDefaultMessage());
       });
+      response.put("errors", errors);
       return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
     }
     if (currentClient == null) {
