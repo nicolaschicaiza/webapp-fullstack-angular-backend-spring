@@ -221,7 +221,13 @@ public class ClientRestController {
       e.printStackTrace();
     }
     if (!resource.exists() && !resource.isReadable()) {
-      throw new RuntimeException("Error no se pudo cargar la imagen: " + filename);
+      path = Paths.get("src/main/resources/static/images").resolve("no_user.png").toAbsolutePath();
+      try {
+        resource = new UrlResource(path.toUri());
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
+      }
+      log.error("Error no se pudo cargar la imagen: " + filename);
     }
     HttpHeaders headers = new HttpHeaders();
     headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
