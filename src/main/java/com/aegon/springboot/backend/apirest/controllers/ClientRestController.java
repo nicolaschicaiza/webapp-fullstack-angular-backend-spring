@@ -2,6 +2,7 @@ package com.aegon.springboot.backend.apirest.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,10 +14,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -199,6 +203,23 @@ public class ClientRestController {
     }
 
     return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+  }
+
+  @GetMapping("/uploads/img/{filename:.+}")
+  public ResponseEntity<Resource> seePhoto(@PathVariable String filename) {
+    Path path = Paths.get("uploads").resolve(filename).toAbsolutePath();
+    Resource resource = null;
+    try {
+      resource = new UrlResource(path.toUri());
+    } catch (MalformedURLException e) {
+      e.printStackTrace();
+    }
+    if (!resource.exists() && !resource.isReadable()) {
+      throw new RuntimeException("Error no se pudo cargar la imagen: " + filename);
+    }
+    HttpHeaders headers = new HttpHeaders();
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"");
+    return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
   }
 
 }
