@@ -1,5 +1,6 @@
 package com.aegon.springboot.backend.apirest.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,6 +140,18 @@ public class ClientRestController {
   public ResponseEntity<?> delete(@PathVariable Long id) {
     Map<String, Object> response = new HashMap<>();
     try {
+      Client client = clientService.findById(id);
+
+      // Delete photo
+      String oldFilename = client.getPhoto();
+      if (oldFilename != null && oldFilename.length() > 0) {
+        Path oldPath = Paths.get("uploads").resolve(oldFilename).toAbsolutePath();
+        File oldFile = oldPath.toFile();
+        if (oldFile.exists() && oldFile.canRead()) {
+          oldFile.delete();
+        }
+      }
+
       clientService.delete(id);
     } catch (DataAccessException e) {
       response.put("mensaje", "Error al eliminar el cliente de la base de datos");
@@ -165,6 +178,16 @@ public class ClientRestController {
         response.put("mensaje", "Error al subir la imagen del cliente " + filename);
         response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+
+      // Delete old photo
+      String oldFilename = client.getPhoto();
+      if (oldFilename != null && oldFilename.length() > 0) {
+        Path oldPath = Paths.get("uploads").resolve(oldFilename).toAbsolutePath();
+        File oldFile = oldPath.toFile();
+        if (oldFile.exists() && oldFile.canRead()) {
+          oldFile.delete();
+        }
       }
 
       client.setPhoto(filename);
