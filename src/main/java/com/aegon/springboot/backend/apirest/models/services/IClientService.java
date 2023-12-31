@@ -2,6 +2,9 @@ package com.aegon.springboot.backend.apirest.models.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.aegon.springboot.backend.apirest.models.entity.Client;
 
 /**
@@ -10,6 +13,8 @@ import com.aegon.springboot.backend.apirest.models.entity.Client;
 public interface IClientService {
 
   public List<Client> findAll();
+
+  public Page<Client> findAll(Pageable pageable);
 
   public Client findById(Long id);
 

@@ -8,10 +8,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Client
@@ -24,15 +27,27 @@ public class Client implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
+  @NotEmpty(message = "'Nombre' no debe estar vacío.")
+  @Size(min = 4, max = 12, message = "'Nombre' debe ser entre 4 y 12 caracteres.")
+  @Column(nullable = false)
   private String name;
+
+  @NotEmpty(message = "'Apellido' no debe estar vacío.")
   private String lastname;
+
+  @NotEmpty(message = "'Correo Electrónico' no debe estar vacío.")
+  @Email(message = "'Correo Electrónico' no es una dirección de correo bien formada.")
+  @Column(nullable = false, unique = true)
   private String email;
 
+  @NotNull(message = "'Fecha' no debe estar vacío.")
   @Column(name = "create_at")
   @Temporal(TemporalType.TIMESTAMP)
   private Date createAt;
 
-  @PrePersist
+  private String photo;
+
+  // @PrePersist
   public void prePresist() {
     createAt = new Date();
   }
@@ -75,6 +90,14 @@ public class Client implements Serializable {
 
   public void setCreateAt(Date createAt) {
     this.createAt = createAt;
+  }
+
+  public String getPhoto() {
+    return photo;
+  }
+
+  public void setPhoto(String photo) {
+    this.photo = photo;
   }
 
   private static final long serialVersionUID = 1L;
