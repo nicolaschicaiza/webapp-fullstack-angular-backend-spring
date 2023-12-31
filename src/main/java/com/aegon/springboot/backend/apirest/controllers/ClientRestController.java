@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,7 +156,7 @@ public class ClientRestController {
     Client client = clientService.findById(id);
 
     if (!file.isEmpty()) {
-      String filename = file.getOriginalFilename();
+      String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename().replace(" ", "-");
       Path path = Paths.get("uploads").resolve(filename).toAbsolutePath();
 
       try {
